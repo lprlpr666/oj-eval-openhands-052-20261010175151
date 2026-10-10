@@ -291,6 +291,8 @@ int main(){
     if(!std::getline(cin, input)) return 0;
     // remove possible carriage return
     if(!input.empty() && input.back()=='\r') input.pop_back();
+    // remove spaces from input
+    input.erase(remove(input.begin(), input.end(), ' '), input.end());
     s = input; pos=0; advance();
     if(cur.type==TOK_PLUS) advance(); // skip leading plus
     Frac expr = parseExpr(); expr.simplify();
