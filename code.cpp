@@ -210,6 +210,12 @@ int parseNumber(){ if(cur.type==TOK_NUM){ int v=cur.value; advance(); return v; 
 
 // parse primary which may be number, variable part, or parenthesized expression
 Frac parsePrimary(){
+    // unary minus
+    if(cur.type==TOK_MINUS){
+        advance();
+        Frac val = parsePrimary();
+        return Frac::fromConst(-1) * val;
+    }
     if(cur.type==TOK_NUM){
         int val = cur.value; advance();
         return Frac::fromConst(val);
@@ -228,13 +234,15 @@ Frac parsePrimary(){
                 advance();
                 int exp=1;
                 if(cur.type==TOK_POW){ advance(); exp = parseNumber(); }
-                if(cur.type==TOK_X){ advance(); } // consume x after sin
+                // consume the following 'x' as argument of sin
+                if(cur.type==TOK_X) advance();
                 t.c = exp;
             }else if(cur.type==TOK_COS){
                 advance();
                 int exp=1;
                 if(cur.type==TOK_POW){ advance(); exp = parseNumber(); }
-                if(cur.type==TOK_X){ advance(); }
+                // consume the following 'x' as argument of cos
+                if(cur.type==TOK_X) advance();
                 t.d = exp;
             }
             Poly p(t);
@@ -254,6 +262,12 @@ Frac parseFactor(){
     while(true){
         if(cur.type==TOK_MUL){ advance(); Frac right = parsePrimary(); left = left * right; }
         else if(cur.type==TOK_DIV){ advance(); Frac right = parsePrimary(); left = left / right; }
+        // implicit multiplication (e.g., 3x, 2sinx, (a)(b))
+        else if(cur.type==TOK_NUM || cur.type==TOK_X || cur.type==TOK_SIN || cur.type==TOK_COS || cur.type==TOK_LP){
+            // treat as multiplication without consuming an explicit operator
+            Frac right = parsePrimary();
+            left = left * right;
+        }
         else break;
     }
     return left;
