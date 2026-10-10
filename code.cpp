@@ -262,9 +262,8 @@ Frac parseFactor(){
     while(true){
         if(cur.type==TOK_MUL){ advance(); Frac right = parsePrimary(); left = left * right; }
         else if(cur.type==TOK_DIV){ advance(); Frac right = parsePrimary(); left = left / right; }
-        // implicit multiplication (e.g., 3x, 2sinx, (a)(b))
         else if(cur.type==TOK_NUM || cur.type==TOK_X || cur.type==TOK_SIN || cur.type==TOK_COS || cur.type==TOK_LP){
-            // treat as multiplication without consuming an explicit operator
+            // implicit multiplication (e.g., 3x, 2sinx, (a)(b))
             Frac right = parsePrimary();
             left = left * right;
         }
@@ -293,6 +292,7 @@ int main(){
     // remove possible carriage return
     if(!input.empty() && input.back()=='\r') input.pop_back();
     s = input; pos=0; advance();
+    if(cur.type==TOK_PLUS) advance(); // skip leading plus
     Frac expr = parseExpr(); expr.simplify();
     Frac deriv = expr.derivative(); deriv.simplify();
     cout << expr.toString() << "\n" << deriv.toString() << "\n";
