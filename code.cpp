@@ -289,7 +289,9 @@ int main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
     string input;
-    if(!(cin>>input)) return 0;
+    if(!std::getline(cin, input)) return 0;
+    // remove possible carriage return
+    if(!input.empty() && input.back()=='\r') input.pop_back();
     s = input; pos=0; advance();
     Frac expr = parseExpr(); expr.simplify();
     Frac deriv = expr.derivative(); deriv.simplify();
